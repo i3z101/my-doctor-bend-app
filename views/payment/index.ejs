@@ -1,0 +1,46 @@
+<%- include("../reusable/beginning", {
+    title: "Payment"
+}) -%>
+
+<section class="payment_image_sction">
+    <img src="/imgs/payment.svg" alt="payment" class="payment_image" />
+</section>
+<section class="payment_container">
+    <div class="card_container">
+         <p class="checkout">Checkout</p>
+        <div class="appointment_text_container">
+            <div>
+                <p class="appointment_text"><%= amount %>$</p>
+            </div>
+        </div>
+        <div class="summary_container">
+            <h2>Summary</h2>
+            <p>Appointment with <strong style="color: white;">Dr.<%= doctorFullName %></strong></p>
+            <p><%= date %> <strong style="color: white;"> At <%= time %> </strong></p>
+            <div class="divider"></div>
+        </div>
+        <p class="checkout" style="color: black;">Payment Details</p>
+        <form class="form_payment_container" acceptCharset="UTF-8" action="https://api.moyasar.com/v1/payments.html" method="POST">
+            <input type="hidden" name="callback_url" value="https://b102-2001-16a2-cb25-a800-f1da-b62e-7f94-42ee.ngrok.io/payment-status?appointmentAmount=<%= amount %>&date=<%= date %>&time=<%= time %>"/>
+            <input type="hidden" name="publishable_api_key" value="pk_test_uA6t1pjJwACGsP5nuj9Rb4uKuMVSNFPEVjrX8apP" />
+            <input type="hidden" name="source[type]" value="creditcard" />
+            <input type="hidden" name="amount" value="1000" />
+            <input class='card_input' type="text" name="source[name]" id="cardHolderName" placeholder="Cardholder's Name"/>
+            <span id="nameValidation" class="validation"></span>
+            <input class='card_input' type="number" inputMode="numeric" name="source[number]" id="cardNumber" placeholder="Card Number"/>
+            <span id="numValidation" class="validation"></span>
+            <input class='card_input' type="number" inputMode="numeric" name="source[month]" id="month" placeholder="Expiration Month Ex:02" />
+            <span id="monthValidation" class="validation"></span>
+            <input class='card_input' type="number" inputMode="numeric" name="source[year]" id="year" placeholder="Expiration Year Ex:24"/>
+            <span id="yearValidation" class="validation"></span>
+            <input class='card_input' type="number" inputMode="numeric" name="source[cvc]" id="cvc" placeholder="cvc"/>
+            <span id="cvcValidation" class="validation"></span>
+            <button type="submit" class="pay_button" id="pay_button">Checout <img src="/imgs/arrow.svg" alt="arrow" class="arrow_image" /></button>
+        </form>
+    </div>
+</section>
+
+<script src="/js/payment.js"></script>
+<script src="/js/validations.js"></script>
+</body>
+<%- include("../reusable/end") -%>
