@@ -6,13 +6,22 @@
  2. TypeScript
  3. Expressjs
  4. Ejs
- 5. Socket io
- 6. WebRTC
- 7. Docker
- 8. AWS ECS
- 9. AWS S3
+ 5. Twillio
+ 6. Socket io
+ 7. WebRTC
+ 8. Docker
+ 9. AWS ECS
+ 10. AWS S3
+
+# WARNING
+
+**YOU SHOULD HAVE TWILLIO ACCOUNT TO GET AUTH TOKEN AND SERVICE ID FOR SMS OTP MESSAGE**
+**--------------------------------------------------------**
+**YOU SHOULD HAVE AWS ACCOUNT TO USE ECS AND AWS S3**
+
 
 # How To Run This Application
+
 
 **All you need is to**
 
