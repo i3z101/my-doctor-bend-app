@@ -1,0 +1,83 @@
+<% 
+    index = 0
+%> 
+
+<%- include('./begin', {
+    title: title
+}) %>
+
+
+<%- include('./begin-layout') %>
+<!-- Menu -->
+
+<%- include('./aside-menu', {
+    activePath
+}) %>
+
+
+<!-- Layout container -->
+<div class="layout-page">
+
+    <%- include('./navbar', {
+        adminName
+      }) %>
+      
+    <div class="container-xxl flex-grow-1 container-p-y">
+        <div class="card">
+            <h5 class="card-header">Doctors</h5>
+            <div class="table-responsive text-nowrap">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Doctor Full Name</th>
+                    <th>Doctor Phone</th>
+                    <th>Doctor Email</th>
+                    <th>Doctor Clinic</th>
+                    <th>Doctor Graduated From</th>
+                    <th>Doctor Price Per Hour</th>
+                    <th>Doctor Certificate</th>
+                    <th>Doctor Photo</th>
+                    <th>Account Active</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    <% doctors.map(doctor => { %>
+                        <tr>
+                            <td><strong><%= doctor.doctorFullName %></strong></td>
+                            <td><strong>+<%= doctor.doctorPhone %></strong></td>
+                            <td><strong><%= doctor.doctorEmail %></strong></td>
+                            <td><strong><%= doctor.doctorClinic %></strong></td>
+                            <td><strong><%= doctor.doctorGraduatedFrom %></strong></td>
+                            <td><strong class="text-info"><%= doctor.doctorPricePerHour %>$</strong></td>
+                            <td><strong><a class="text-primary" href="<%= doctor.doctorCertificate%>" target="_blank">Doctor Certificate</a></strong></td>
+                            <td><strong><a class="text-primary" href="<%= doctor.doctorPhoto %>" target="_blank">Doctor Photo</a></strong></td>
+                            <% if(doctor.isAccountActive) { %>
+                                <td><span class="badge bg-label-success me-1 text-secondary">YES</span></td>
+                            <% } else { %>
+                                <td><span class="badge bg-label-danger me-1 text-danger">NO</span></td>
+                            <% } %>
+                            <% if(doctor.isAccountActive) { %>
+                            <td>
+                                <form method="post" action="/admin/doctors/disable-doctor">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">DISABLE</button>
+                                    <input type="hidden" name="doctorId" value="<%= doctor._id %>">
+                                </form>
+                            </td>
+                            <% } else { %>
+                                <td>
+                                    <form method="post" action="/admin/doctors/active-doctor">
+                                        <button type="submit" class="btn btn-sm btn-outline-info">ACTIVE</button>
+                                        <input type="hidden" name="doctorId" value="<%= doctor._id %>">
+                                    </form>
+                                </td> 
+                            <% } %>
+                        </tr>
+                    <% })%>
+                </table>
+            </div>
+            </div>
+        
+
+
+<%- include('./end') %>

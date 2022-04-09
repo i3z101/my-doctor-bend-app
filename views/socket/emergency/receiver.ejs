@@ -1,0 +1,21 @@
+<%- include("../../reusable/beginning", {
+    title: "call"
+}) -%>
+
+<div class="vide_cam_container">
+    <video id="caller-cam" class="caller_cam" muted="muted" autoplay playsinline ></video>
+    <video id="receiver-cam" class="receiver_cam" autoplay playsinline></video>
+</div>
+
+
+<div class="call-btn-container" id="answer">
+    <img src="/imgs/call-answer-btn.svg" alt="call-btn" class="answer_btn"/>
+</div>
+
+<input hidden value="<%= roomId %>" id="roomId" />
+
+<script defer src="/js/helper.js"></script>
+<script defer src="/socket.io/socket.io.js"></script>
+<script defer src="/js/emergency-receiver.js"></script>
+</body>
+<%- include("../../reusable/end") -%>

@@ -10,8 +10,6 @@
  6. Socket io
  7. WebRTC
  8. Docker
- 9. AWS ECS
- 10. AWS S3
 
 # WARNING
 
@@ -30,4 +28,7 @@
  - npm run dev
  - npm run build [**To build the project and compile ts files into js**]
  - npm start [**After you build the server**]
+
+ **To Use Docker**
+ - docker compose up
 

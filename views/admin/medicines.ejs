@@ -1,0 +1,58 @@
+<%- include('./begin', {
+    title: title
+}) %>
+
+
+<%- include('./begin-layout') %>
+<!-- Menu -->
+
+<%- include('./aside-menu', {
+    activePath
+}) %>
+
+<!-- Layout container -->
+<div class="layout-page">
+
+    <%- include('./navbar', {
+        adminName
+      }) %>
+      
+    <div class="container-xxl flex-grow-1 container-p-y">
+        <div class="card">
+            <h5 class="card-header">Medicines</h5>
+            <div class="table-responsive text-nowrap">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Medicine Name</th>
+                    <th>Start Date</th>
+                    <th>Start Time</th>
+                    <th>Stop Date</th>
+                    <th>Stop Time</th>
+                    <th>Times Per Day</th>
+                    <th>Tablets Per Time</th>
+                    <th>Should Take It Every</th>
+                    <th>Days To Stop</th>
+                    <th>Patient</th>
+                </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    <% medicines.map(medicine => { %>
+                        <tr>
+                            <td><strong><%= medicine.medicineName %></strong></td>
+                            <td><strong><%= medicine.startDate %></strong></td>
+                            <td><strong><%= medicine.startTime %></strong></td>
+                            <td><strong><%= medicine.stopDate %></strong></td>
+                            <td><strong><%= medicine.stopTime[0]+ medicine.stopTime[1] >= 12 ? medicine.stopTime + " PM" : medicine.stopTime + " AM" %></strong></td>
+                            <td><strong><%= medicine.timesPerDay %></strong></td>
+                            <td><strong><%= medicine.tabletsPerTime %></strong></td>
+                            <td><strong><%= medicine.shouldTakeItEvery %>hr(s)</strong></td>
+                            <td><strong><%= medicine.numberOfDays %></strong></td>
+                            <td><strong><%= medicine.patient.patientName %></strong></td>
+                        </tr>
+                    <% })%>
+                </table>
+        </div>
+
+
+<%- include('./end') %>

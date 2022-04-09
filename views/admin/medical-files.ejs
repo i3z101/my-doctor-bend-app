@@ -1,0 +1,59 @@
+<%- include('./begin', {
+    title: title
+}) %>
+
+
+<%- include('./begin-layout') %>
+<!-- Menu -->
+
+<%- include('./aside-menu', {
+    activePath
+}) %>
+
+<!-- Layout container -->
+<div class="layout-page">
+
+    <%- include('./navbar', {
+        adminName
+      }) %>
+      
+    <div class="container-xxl flex-grow-1 container-p-y">
+        <div class="card">
+            <h5 class="card-header">Medical Files</h5>
+            <div class="table-responsive text-nowrap">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>File Name</th>
+                    <th>Clinic</th>
+                    <th>Doctor</th>
+                    <th>Disease</th>
+                    <th>Medicine(s)</th>
+                    <th>Patient Name</th>
+                    <th>Created At</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    <% medicalFiles.map(medicalFile => { %>
+                        <tr>
+                            <td><strong><%= medicalFile.fileName %></strong></td>
+                            <td><strong><%= medicalFile.clinic %></strong></td>
+                            <td><strong><%= medicalFile.doctor.doctorFullName %></strong></td>
+                            <td><strong><%= medicalFile.disease %></strong></td>
+                            <td><strong><%= medicalFile.medicine %></strong></td>
+                            <td><strong><%= medicalFile.patientName %></strong></td>
+                            <td><strong><%= medicalFile.createdAt %></strong></td>
+                            <td>
+                                <form method="post" action="/admin/medical-files/delete-medical-file">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    <input type="hidden" name="medicalFileId" value="<%= medicalFile._id %>">
+                                </form>
+                            </td>
+                        </tr>
+                    <% })%>
+                </table>
+        </div>
+
+
+<%- include('./end') %>

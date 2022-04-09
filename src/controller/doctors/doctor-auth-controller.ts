@@ -21,8 +21,8 @@ export const sendSmsCodeRegisterController = async(req: Request, res: Response, 
         if(!validations.isEmpty()) {
             errorHandler("Validation error(s)", 422, validations.array());
         }
-        const doctor = await Doctor.findOne({doctorPhone});
-        if(doctor) {
+        const existDoctor = await Doctor.findOne({doctorPhone});
+        if(existDoctor) {
             errorHandler("Doctor is registered already", 422);
         }
         await sendSms(doctorPhone);
@@ -35,26 +35,30 @@ export const sendSmsCodeRegisterController = async(req: Request, res: Response, 
 }
 
 export const registerDoctorController = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
-    const {doctorFullName, doctorPhone, doctorEmail, doctorClinic, doctorPricePerHour, doctorGraduatedFrom ,code} = req.body;
+    const {doctorFullName, doctorPhone, doctorEmail, doctorClinic, doctorPricePerHour, doctorGraduatedFrom ,code, pushToken} = req.body;
     try {
         await verfiySms(code, doctorPhone);
         if(req.files){
             const files = req.files as any;
             
-            const doctor: any = await new Doctor({
+            const doctor = await new Doctor({
                 doctorFullName,
                 doctorPhone,
                 doctorEmail,
                 doctorClinic,
                 doctorGraduatedFrom,
                 doctorPricePerHour,
+                pushToken,
                 doctorCertificate: `/doctors/certificates/${files.doctorCertificate[0].filename}`,
                 doctorPhoto: `/doctors/photos/${files.doctorPhoto[0].filename}`,
-                acquiredAppointments: []
+                acquiredAppointments: [],
             }).save();
+
             const doctorInfo = {
                 doctorId: doctor._id,
-                ...doctor._doc
+                doctorFullName:doctor.doctorFullName ,
+                doctorPhone: doctor.doctorPhone,
+                doctorEmail: doctor.doctorEmail,
             }
             const encodeToken = jwt.sign(doctorInfo, process.env.TOKEN_SECRET_KEY as string, {expiresIn: '120d'});
             const responseDoctorInfo = {
@@ -82,6 +86,7 @@ export const registerDoctorController = async (req: Request, res: Response, next
 
 export const sendSmsCodeLoginController = async(req: Request, res: Response, next: NextFunction): Promise<any> => {
     const {doctorPhone} = req.body;
+    
     try {
         const validations = validationResult(req)
         if(!validations.isEmpty()) {
@@ -92,9 +97,13 @@ export const sendSmsCodeLoginController = async(req: Request, res: Response, nex
 
         if(!existDoctor) {
             errorHandler("Doctor is not found", 404);
+        }else {
+            if(!existDoctor.isAccountActive) {
+                errorHandler("Doctor's account is not active. Please contact us", 404);
+            }
         }
 
-        // await sendSms(doctorPhone);
+        await sendSms(doctorPhone);
 
     }catch(err: any) {
         return next(err);
@@ -104,22 +113,24 @@ export const sendSmsCodeLoginController = async(req: Request, res: Response, nex
 }
 
 export const loginDoctorController = async(req: Request, res: Response, next: NextFunction): Promise<any> => {
-    const {doctorPhone, code} = req.body;
+    const {doctorPhone, code, pushToken} = req.body;
     try {
-        // await verfiySms(code, doctorPhone);
+        await verfiySms(code, doctorPhone);
         const doctor: any = await Doctor.findOne({doctorPhone});
-
-        const doctorInfo = {
-            doctorId: doctor._id,
-            ...doctor._doc
+        if(doctor != null) {
+            await doctor.updateOne({$set: {pushToken}});
+            const doctorInfo = {
+                ...doctor._doc,
+                doctorId: doctor._id,
+            }
+            const encodeToken = jwt.sign(doctorInfo, process.env.TOKEN_SECRET_KEY as string, {expiresIn: '120d'});
+            const responseDoctorInfo = {
+                authToken: encodeToken,
+                ...doctorInfo
+            }
+            
+            responseHandler(res, "Welcome back", 200, {doctor: responseDoctorInfo});
         }
-        const encodeToken = jwt.sign(doctorInfo, process.env.TOKEN_SECRET_KEY as string, {expiresIn: '120d'});
-        const responseDoctorInfo = {
-            authToken: encodeToken,
-            ...doctorInfo
-        }
-        
-        responseHandler(res, "Welcome back", 200, {doctor: responseDoctorInfo});
     }catch(err: any) {
         if(err.message == `The requested resource /Services/${process.env.SERVICE_SID}/VerificationCheck was not found`){
             err.message = "Code is expired"

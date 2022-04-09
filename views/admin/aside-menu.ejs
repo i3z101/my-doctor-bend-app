@@ -1,0 +1,48 @@
+<aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+    <div class="app-brand demo">
+      <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+        <i class="bx bx-chevron-left bx-sm align-middle"></i>
+      </a>
+    </div>
+
+    <div class="menu-inner-shadow"></div>
+
+    <ul class="menu-inner py-1">
+      <!-- Dashboard -->
+      <li class="menu-item <%= activePath == '/admin' ? 'active' : '' %> ">
+        <a href="/admin" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-home-circle"></i>
+          <div data-i18n="Analytics">Dashboard</div>
+        </a>
+      </li>
+      <li class="menu-item <%= activePath == '/appointments' ? 'active' : '' %>">
+        <a href="/admin/appointments" class="menu-link">
+          <i class="menu-icon tf-icons bx bxs-calendar"></i>
+          <div data-i18n="Analytics">Appointments</div>
+        </a>
+      </li>
+      <li class="menu-item <%= activePath == '/medical-files' ? 'active' : '' %>">
+        <a href="/admin/medical-files" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-folder"></i>
+          <div data-i18n="Analytics">Medical Files</div>
+        </a>
+      </li>
+      <li class="menu-item <%= activePath == '/medicines' ? 'active' : '' %>">
+        <a href="/admin/medicines" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-capsule"></i>
+          <div data-i18n="Analytics">Medicines</div>
+        </a>
+      </li>
+      <li class="menu-item <%= activePath == '/doctors' ? 'active' : '' %>">
+        <a href="/admin/doctors" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-plus-medical"></i>
+          <div data-i18n="Analytics">Doctros</div>
+        </a>
+      </li>
+      <li class="menu-item <%= activePath == '/patients' ? 'active' : '' %>">
+        <a href="/admin/patients" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-user-circle"></i>
+          <div data-i18n="Analytics">Patients</div>
+        </a>
+      </li>
+  </aside>

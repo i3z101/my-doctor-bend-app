@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
 import { AppointmentType, MedicineType } from "../helper/types";
-import { Patient } from "./patients";
+import Patient from "./patients";
 
 const Schema =  mongoose.Schema
 
@@ -8,10 +8,6 @@ const MedicineSchema = new Schema<MedicineType>({
     patient: {
         type: Schema.Types.ObjectId,
         ref: Patient
-    },
-    medicineId: {
-        type: String,
-        required: true
     },
     medicineName: {
         type: String,
@@ -55,6 +51,11 @@ const MedicineSchema = new Schema<MedicineType>({
             required: true
         }
     }]
+}, {
+    timestamps: {
+        createdAt: "createdAt",
+        updatedAt: "updatedAt"
+    }
 })
 
 const Medicine = mongoose.model("medicines", MedicineSchema);

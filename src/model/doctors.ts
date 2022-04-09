@@ -53,6 +53,10 @@ const DoctorSchema = new Schema<DoctorsAuthType>({
         type: Boolean,
         default: true
     },
+    pushToken: {
+        type: String,
+        default: ""
+    }
 }, {
     timestamps: {
         createdAt: "createdAt",

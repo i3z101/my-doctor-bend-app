@@ -10,17 +10,27 @@ const cvcInput = document.getElementById("cvc");
 const cvcValidation = document.getElementById("cvcValidation");
 const payButton = document.getElementById("pay_button");
 
+for(let i=1; i<=12; i++) {
+    if(i < 10) {
+        monthInput.innerHTML += `<option value=0${i}>0${i}</option>`
+    }else {
+        monthInput.innerHTML += `<option value=${i}>${i}</option>`
+    }
+}
+
+for(let i= new Date().getFullYear(); i<= 2033; i++) {
+    yearInput.innerHTML += `<option value=${i.toString().slice(2)}>${i}</option>`
+}
+
 cardHolderValidation.innerHTML = " ";
 cardNumberValidation.innerHTML = " ";
-monthValidation.innerHTML = " ";
-yearValidation.innerHTML = " ";
 cvcValidation.innerHTML = " ";
 
 const removeDisabledBtn = ()=> {
     if(cardHolderValidation.innerHTML != "" ||
         cardNumberValidation.innerHTML != "" ||
-        monthValidation.innerHTML != "" ||
-        yearValidation.innerHTML != "" ||
+        monthInput.value == "Choose Month" ||
+        yearInput.value == "Choose Year" ||
         cvcValidation.innerHTML != ""      
     ) {
         payButton.setAttribute("disabled", true);
@@ -45,15 +55,6 @@ cardNumberInput.addEventListener('keyup', (e) => {
     removeDisabledBtn()
 })
 
-monthInput.addEventListener('keyup', (e) => {
-    monthValidation.innerHTML = validateNumericOnChange(e.target.value, "Expiration Month", 2);
-    removeDisabledBtn()
-})
-
-yearInput.addEventListener('keyup', (e) => {
-    yearValidation.innerHTML = validateNumericOnChange(e.target.value, "Expiration Year", 2);
-    removeDisabledBtn()
-})
 
 cvcInput.addEventListener('keyup', (e) => {
     cvcValidation.innerHTML = validateNumericOnChange(e.target.value, "CVC", 3);

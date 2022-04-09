@@ -1,52 +1,98 @@
-const video = document.getElementById("socket-cam");
-const secondVideo = document.getElementById("socket-cam-patient");
+const video = document.getElementById("caller-cam");
+const receiverCam = document.getElementById("receiver-cam");
 const answerBtn = document.getElementById("answer");
 const sdpOffer = document.getElementById("sdp-offer");
-const client = io("http://localhost:5000");
+const roomId = document.getElementById('roomId').value
 
-const peerConnection = new RTCPeerConnection({
-    iceServers: [
-        {
-            urls: ['stun:stun.l.google.com:19302']
-        }
+answerBtn.style.visibility = "hidden";
+
+const client = io('/appointments', {
+  query: {
+    roomId
+  }
+});
+
+
+
+let localStream = null, remoteStream= null, prevOffer = null;
+
+const pc_config = {
+    "iceServers": [
+      {
+        urls : 'stun:stun.l.google.com:19302'
+      }
     ]
-})
+  }
 
-let isCalling = false;
+const peerConnection = new RTCPeerConnection(pc_config);
+
 
 
 peerConnection.ontrack = (e) => {
-    console.log("Hello");
-    secondVideo.srcObject = e.streams[0]
+    receiverCam.srcObject = e.streams[0]
 }
 
+peerConnection.oniceconnectionstatechange = (e) => {
+  console.log(peerConnection.iceConnectionState);
+} 
+
+peerConnection.onicecandidate = (e) => {
+    // send the candidates to the remote peer
+    // see addCandidate below to be triggered on the remote peer
+    if (e.candidate) {
+      // console.log(JSON.stringify(e.candidate))
+      sendToPeer('candidate', {
+        candidate: e.candidate,
+        roomId
+      })
+    }
+}
 
 const getMedia = async () => {
-    const localMedia = await navigator.mediaDevices.getUserMedia({video: true});
+    const localMedia = await navigator.mediaDevices.getUserMedia({video: {
+      aspectRatio: 1.7777777778,
+      echoCancellation: true,
+      noiseSuppression: true
+    }
+    , audio: {
+      echoCancellation: true,
+      noiseSuppression: true
+    }});
     video.srcObject = localMedia;
+    video.volume = 0;
     localMedia.getTracks().forEach(track => {
         peerConnection.addTrack(track, localMedia);
     })
-
 }
 
-// getMedia();
+const sendToPeer = (messageType, payload) => {
+    client.emit(messageType, {
+      socketID: client.id,
+      payload
+    })
+  }
 
-client.emit('join-room');
+getMedia();
 
-client.on('user-joined', (args)=> {
-    console.log(`User ${args.id} joined the room`); 
+client.on('join', args=> {
+    console.log("Welcome " + args.socketId);
+});
+
+client.on('call-user', async (args)=> {
+  if(prevOffer != null) {
+    await peerConnection.remoteDescription(new RTCSessionDescription(args.offer))
+  }
+  answerBtn.style.visibility = "visible"
+  await peerConnection.setRemoteDescription(new RTCSessionDescription(args.offer));
+  prevOffer = args.offer
 })
 
 
-client.on('calling-user', async (args)=> {
-    await peerConnection.setRemoteDescription(new RTCSessionDescription(args.offer));
-    sdpOffer.innerHTML = JSON.stringify(args.offer)
-})
 
-
-client.on('ic-candidate', async(args)=> {
-    await peerConnection.addIceCandidate(new RTCIceCandidate(args.candidate))
+client.on('candidate', async(args)=> {
+  await peerConnection.addIceCandidate(new RTCIceCandidate(args.candidate))
+  // if(args.candidate) {
+  // }
 })
 
 
@@ -55,45 +101,18 @@ answerBtn.onclick = async => {
 }
 
 const answerCall = async () => {
-    await getMedia();
+    // await getMedia();
     const answer = await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(new RTCSessionDescription(answer));
-    client.emit('make-answer', {
-        answer
+    console.log(answer);
+    sendToPeer('answer', {
+      answer: answer,
+      roomId
     })
+    answerBtn.style.display = "none";
+    receiverCam.style.display = 'block';
+    video.classList.add('caller_cam_after_answer')
 }
 
 
 
-// client.on('calling-user', async (args)=> {
-//     await peerConnection.setRemoteDescription(new RTCSessionDescription(args.offer))
-//     const answer = await peerConnection.createAnswer();
-//     await peerConnection.setLocalDescription(new RTCSessionDescription(answer));
-
-//     // peerConnection.onicecandidate = e => {
-//     //     if(e.candidate) {
-//     //         client.emit('candidate', {
-//     //             candidate: e.candidate
-//     //         })
-//     //     }
-//     // }
-
-//     sdp.innerHTML = JSON.stringify(args.offer)
-//     client.emit('make-answer', {
-//         answer
-//     })
-// })
-
-// client.on('ice-candidate', async (args)=> {
-//     await peerConnection.addIceCandidate(new RTCIceCandidate(args.candidate));
-// })
-
-// client.on('answer-made', async (args)=> {
-//     await peerConnection.setRemoteDescription(new RTCSessionDescription(args.answer));
-
-//     // if(!isCalling) {
-//     //     callUser()
-//     //     isCalling = true
-//     // }
-
-// })

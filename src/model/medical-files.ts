@@ -26,10 +26,6 @@ const MedicalFileSchema = new Schema<MedicalFileType>({
         type: String,
         required: true
     },
-    createdAt: {
-        type: String,
-        required: true
-    },
     doctor: {
         type: Schema.Types.ObjectId,
         ref: Doctor
@@ -37,6 +33,11 @@ const MedicalFileSchema = new Schema<MedicalFileType>({
     patient: {
         type: Schema.Types.ObjectId,
         ref: Patient
+    }
+}, {
+    timestamps: {
+        createdAt: "createdAt",
+        updatedAt: "updatedAt"
     }
 })
 

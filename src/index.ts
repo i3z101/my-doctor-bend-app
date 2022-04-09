@@ -11,34 +11,24 @@ import doctorAuth from './route/doctors/doctors-auth-router';
 import sharedEndPoints from './route/shared/shared-endpoint';
 import htmlPages from './route/extra-routes/extra-routes';
 import {Server} from 'socket.io';
-import {ExpressPeerServer} from 'peer';
-import {createServer} from 'http'
-import { connectIO } from './controller/shared/shared-endpoints-controller';
+import {Expo} from 'expo-server-sdk';
+import { appointmentsIo, emergencyIo } from './controller/extra-controller/extra-controller';
+import adminsRoute from './route/admins/admins-route';
+
 
 const PORT: number|string = process.env.PORT || 5000;
 export const GROUPING_PATIENTS_URL = "/api/v1/patients"
 export const GROUPING_DOCTORS_URL = "/api/v1/doctors"
 
 const app: Application = express();
-const server = createServer(app);
 
-const peerServer = ExpressPeerServer(server, {
-    path:'/'
-})
-
-export const io = new Server(server, {
-    cors: {
-        origin: "*"
-    }
-});
 
 
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
+app.use(express.urlencoded({extended: false}));
 app.use(express.json());
-app.use(cors({
-    origin:'*',
-}));
+app.use(cors());
 app.use(helmet({
     contentSecurityPolicy: false
 })); //Refer to it back for more understanding
@@ -63,6 +53,10 @@ app.use("/api/v1/shared", sharedEndPoints);
 //FOR HTML PAGES
 app.use(htmlPages);
 
+//For admins
+
+app.use("/admin", adminsRoute)
+
 //===============//
 //FOR ERROR HANDLING
 app.use((err:any, req: Request, res: Response, next: NextFunction) => {
@@ -73,18 +67,29 @@ app.use((err:any, req: Request, res: Response, next: NextFunction) => {
     })
 })
 
-// app.use('/peerjs', peerServer);
 
-mongoose.connect("mongodb://localhost:27017/my-doctor").then((m)=> {
-    server.listen(5000, ()=>{
+
+
+
+
+mongoose.connect(`mongodb+srv://aziz-my-doctor:AZZOZz135797531@mydoctor-cluster.yiuwg.mongodb.net/my-doctor?retryWrites=true&w=majority`).then((m)=> {
+    const server = app.listen(5000, ()=>{
         console.log("SERVER IS RUNNING");
     })
+    const io = new Server(server);
+    const appointment = io.of('/appointments');
+    const emergency = io.of('/emergency');
 
-    io.on('connection', client=> {
-        connectIO(client);
+    appointment.on('connection', client => {
+        
+        appointmentsIo(client);
     })
-})
+    
+    emergency.on('connection', client => {
+        emergencyIo(client)
+    })
 
+})
 
 
 

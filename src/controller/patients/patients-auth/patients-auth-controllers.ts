@@ -72,8 +72,12 @@ export const sendSmsCodeLoginController = async (req: Request, res: Response, ne
         const existPatient = await Patient.findOne({patientPhone});
         if(!existPatient) {
             errorHandler("Patient is not found", 404);
+        }else {
+            if(!existPatient.isAccountActive) {
+                errorHandler("Patient's account is not active. Please contact us", 404);
+            }
         }
-        // await sendSms(patientPhone);
+        await sendSms(patientPhone);
         responseHandler(res, "Code sent successfully", 200)
     }catch(err:any) {
         return next(err);
@@ -84,7 +88,7 @@ export const sendSmsCodeLoginController = async (req: Request, res: Response, ne
 export const loginPatientController = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     const {patientPhone, code} = req.body;
     try {
-        // await verfiySms(code, patientPhone);
+        await verfiySms(code, patientPhone);
         const patient: any = await Patient.findOne({patientPhone});
         const patientInfo = {
             patientId: patient._id,

@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  my-doctor-bend:
+    build: .
+    image: i3z101/my-doctor-bend
+    container_name: my-doctor-bend
+    environment:
+      - ACCOUNT_ID=ACfba587cc565cf516b84e60f8a9844a22
+      - AUTH_TOKEN=3006d1d13099bdb0ce0c0df98ae612fd
+      - SERVICE_SID=VAe513afc39909809c9f08a3b824ebfe24
+      - TOKEN_SECRET_KEY=MYDOCTORSECRETKEYSIGNATURE
+      - DB_USERNAME=aziz-my-doctor
+      - DB_PASSWORD=AZZOZz135797531
+    ports:
+      - '5000:5000'
+    volumes:
+      - doctors:/app/public/doctors
+      - bills:/app/public/bills
+volumes:
+  doctors:
+  bills:

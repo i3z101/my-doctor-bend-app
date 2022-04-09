@@ -30,6 +30,15 @@ const AppointmentSchema = new Schema<AppointmentType>({
     bill: {
         type: Schema.Types.ObjectId,
         ref: Bill
+    },
+    roomId: {
+        type: String,
+        required: true
+    },
+    status: {
+        type: String,
+        required: true,
+        default: 'approved'
     }
 })
 

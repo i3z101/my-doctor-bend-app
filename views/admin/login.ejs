@@ -1,0 +1,51 @@
+<%- include('./begin', {
+    title: title
+  }) %>
+
+
+<div class="col-lg-4 col-md-4 col-12 m-auto">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+    <div class="authentication-inner">
+        <!-- Register -->
+        <div class="card">
+        <div class="card-body">
+            <h4 class="mb-2">Welcome to MyDoctor 👋</h4>
+            <p class="mb-4">Please sign-in to your account</p>
+            <form id="formAuthentication" class="mb-3" action="/admin/login" method="post" >
+            <div class="mb-3">
+                <label for="email" class="form-label">Admin Name</label>
+                <input
+                type="text"
+                class="form-control"
+                id="adminName"
+                name="adminName"
+                placeholder="Enter your registered name"
+                autofocus
+                />
+                <small class="text-danger" style="font-size: 12px;" id="adminNameValidation"></small>
+            </div>
+            <div class="mb-3 form-password-toggle">
+                <input
+                    type="password"
+                    id="adminPassword"
+                    class="form-control"
+                    name="adminPassword"
+                    placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+                    aria-describedby="password"
+                />
+                <small class="text-danger" style="font-size: 12px;" id="adminPasswordValidation"></small>
+                </div>
+            <div class="mb-3">
+                <button class="btn d-grid w-100" type="submit" style="background-color: #329F5E; color: white;" id="loginBtn">Sign in</button>
+            </div>
+            </form>
+        </div>
+        </div>
+    </div>
+    </div>
+</div>
+
+<script src="/js/validations.js"></script>
+<script src="/assets/js/admin-login.js"></script>
+
+<%- include('./end') %>

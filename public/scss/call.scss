@@ -1,0 +1,48 @@
+.vide_cam_container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.caller_cam {
+    width: 100%;
+    max-width: 100%;
+}
+
+.caller_cam_after_answer {
+    position: absolute;
+    top: 1rem;
+    width: 19% !important;
+    max-width: 19% !important;
+    height: 17.5% !important;
+    max-height: 17.5% !important;
+    left: 1rem;
+    border-radius: 0.2rem !important;
+}
+
+.receiver_cam {
+    width: 100%;
+    max-width: 100%;
+    display: none;
+    border: 1px solid transparent;
+}
+
+.call-btn-container {
+    position: absolute;
+    bottom: 2rem;
+    left: 9.5rem;
+    .call_btn {
+       color: white;
+       background-color: var(--main-color);
+       font-family: var(--font);
+       font-size: 18px;
+       border: 1px solid var(--main-color);
+       border-radius: 0.4rem;
+       padding: 0.5rem;
+    }
+    .answer_btn {
+        width: 18vw;
+    }
+}

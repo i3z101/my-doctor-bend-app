@@ -21,12 +21,16 @@ const BillSchema = new Schema<BillType>({
     status: {
         type: String,
         default: "paid"
+    },
+    billPath: {
+        type: String,
+        default: ""
     }
 }, {
     timestamps: {
         createdAt: "createdAt",
         updatedAt: "updatedAt"
-    }
+    },
 })
 
 const Bill = mongoose.model("bills", BillSchema);

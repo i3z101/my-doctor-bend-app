@@ -7,7 +7,9 @@ export type AppointmentType = {
     bill: mongoose.Types.ObjectId,
     appointmentDate: string,
     appointmentTime: string,
-    eventId: string|number
+    eventId: string|number,
+    roomId: string,
+    status: string
 }
 
 export type MedicalFileType = {
@@ -18,12 +20,10 @@ export type MedicalFileType = {
     clinic: string,
     patientName: string,
     medicine: string,
-    createdAt: string
 }
 
 
 export type MedicineType = {
-    medicineId: string,
     medicineName: string,
     timesPerDay: number,
     tabletsPerTime: number,
@@ -60,7 +60,8 @@ export type DoctorsAuthType = {
     doctorPricePerHour: number,
     isAccountActive: boolean,
     updatePermitted: boolean,
-    acquiredAppointments: DoctorAcquiredAppointments[]
+    acquiredAppointments: DoctorAcquiredAppointments[],
+    pushToken: string
 }
 
 type DoctorAcquiredAppointments = {
@@ -78,9 +79,16 @@ export type BillType = {
     date: string,
     time: string,
     amount: number,
-    status: string
+    status: string,
+    billPath: string
+}
+
+export type AdminType = {
+    adminName: string,
+    adminPassword: string
 }
 
 export interface RequestWithExtraProps extends Request {
     [extraProps: string]: any
 }
+
