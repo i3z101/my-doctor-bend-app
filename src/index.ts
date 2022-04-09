@@ -72,7 +72,7 @@ app.use((err:any, req: Request, res: Response, next: NextFunction) => {
 
 
 
-mongoose.connect(`mongodb+srv://aziz-my-doctor:AZZOZz135797531@mydoctor-cluster.yiuwg.mongodb.net/my-doctor?retryWrites=true&w=majority`).then((m)=> {
+mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@mydoctor-cluster.yiuwg.mongodb.net/my-doctor?retryWrites=true&w=majority`).then((m)=> {
     const server = app.listen(5000, ()=>{
         console.log("SERVER IS RUNNING");
     })
