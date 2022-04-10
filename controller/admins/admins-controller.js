@@ -47,7 +47,10 @@ const adminLoginHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, 
                     adminId: admin._id,
                     adminName: admin.adminName
                 }, process.env.TOKEN_SECRET_KEY, { expiresIn: '1d' });
-                res.cookie("authToken", token);
+                res.cookie("authToken", token, {
+                    expires: new Date(new Date().getTime() + 86400000),
+                    maxAge: 86400000
+                });
                 return res.redirect("/admin");
             }
         }

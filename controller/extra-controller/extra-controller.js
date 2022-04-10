@@ -38,6 +38,7 @@ const paymentStatusController = (req, res, next) => __awaiter(void 0, void 0, vo
                 amount: appointmentAmount
             }).save();
         }
+        //In front end we send a request every 1 second to check the status of payment in order to close the payment page automatically in the fornt end
         const bill = yield bills_1.default.findOne({ status: "paid", date: date === null || date === void 0 ? void 0 : date.toString().replace(/-/g, " "), time: time === null || time === void 0 ? void 0 : time.toString().replace(/-/g, " ") });
         if (bill) {
             (0, response_handler_1.default)(res, "Succeed", 200, { billId: bill._id });

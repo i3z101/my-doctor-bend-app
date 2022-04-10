@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loginPatientController = exports.sendSmsCodeLoginController = exports.registerPatientController = exports.sendSmsCodeRegisterController = void 0;
+exports.logoutPatientController = exports.loginPatientController = exports.sendSmsCodeLoginController = exports.registerPatientController = exports.sendSmsCodeRegisterController = void 0;
 require("dotenv/config");
 const patients_1 = __importDefault(require("../../../model/patients"));
 const express_validator_1 = require("express-validator");
@@ -40,17 +40,18 @@ const sendSmsCodeRegisterController = (req, res, next) => __awaiter(void 0, void
 });
 exports.sendSmsCodeRegisterController = sendSmsCodeRegisterController;
 const registerPatientController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { patientPhone, patientName, patientEmail, code } = req.body;
+    const { patientPhone, patientName, patientEmail, code, pushToken } = req.body;
     try {
         yield (0, sms_messages_helper_1.verfiySms)(code, patientPhone);
         const patient = yield new patients_1.default({
             patientName,
             patientPhone,
-            patientEmail
+            patientEmail,
+            pushToken
         }).save();
         const patientInfo = Object.assign({ patientId: patient._id }, patient._doc);
         const encodeToken = jsonwebtoken_1.default.sign(patientInfo, process.env.TOKEN_SECRET_KEY, { expiresIn: '120d' });
-        const responsePatientInfo = Object.assign(Object.assign({}, patientInfo), { patientId: patient._id, authToken: encodeToken, isGuest: false });
+        const responsePatientInfo = Object.assign(Object.assign({}, patientInfo), { pushToken, patientId: patient._id, authToken: encodeToken, isGuest: false });
         (0, response_handler_1.default)(res, "Patient registered successfully", 201, { patient: responsePatientInfo });
     }
     catch (err) {
@@ -86,14 +87,17 @@ const sendSmsCodeLoginController = (req, res, next) => __awaiter(void 0, void 0,
 });
 exports.sendSmsCodeLoginController = sendSmsCodeLoginController;
 const loginPatientController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { patientPhone, code } = req.body;
+    const { patientPhone, code, pushToken } = req.body;
     try {
         yield (0, sms_messages_helper_1.verfiySms)(code, patientPhone);
         const patient = yield patients_1.default.findOne({ patientPhone });
-        const patientInfo = Object.assign({ patientId: patient._id }, patient._doc);
-        const encodeToken = jsonwebtoken_1.default.sign(patientInfo, process.env.TOKEN_SECRET_KEY, { expiresIn: '120d' });
-        const responsePatientInfo = Object.assign(Object.assign({}, patientInfo), { authToken: encodeToken, isGuest: false });
-        (0, response_handler_1.default)(res, "Welcome back", 200, { patient: responsePatientInfo });
+        if (patient) {
+            yield patient.updateOne({ $set: { pushToken } });
+            const patientInfo = Object.assign({ patientId: patient._id }, patient._doc);
+            const encodeToken = jsonwebtoken_1.default.sign(patientInfo, process.env.TOKEN_SECRET_KEY, { expiresIn: '120d' });
+            const responsePatientInfo = Object.assign(Object.assign({}, patientInfo), { pushToken, authToken: encodeToken, isGuest: false });
+            (0, response_handler_1.default)(res, "Welcome back", 200, { patient: responsePatientInfo });
+        }
     }
     catch (err) {
         if (err.message == `The requested resource /Services/${process.env.SERVICE_SID}/VerificationCheck was not found`) {
@@ -103,3 +107,16 @@ const loginPatientController = (req, res, next) => __awaiter(void 0, void 0, voi
     }
 });
 exports.loginPatientController = loginPatientController;
+const logoutPatientController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield patients_1.default.findByIdAndUpdate(req.user.patientId, { $set: { pushToken: "" } });
+        (0, response_handler_1.default)(res, "Patient logged out succesfully", 200);
+    }
+    catch (err) {
+        if (err.message == `The requested resource /Services/${process.env.SERVICE_SID}/VerificationCheck was not found`) {
+            err.message = "Code is expired";
+        }
+        return next(err);
+    }
+});
+exports.logoutPatientController = logoutPatientController;

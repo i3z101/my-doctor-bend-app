@@ -19,7 +19,7 @@ const AppointmentSchema = new Schema({
     },
     eventId: {
         type: String,
-        required: true
+        default: ""
     },
     doctor: {
         type: Schema.Types.ObjectId,

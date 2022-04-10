@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loginDoctorController = exports.sendSmsCodeLoginController = exports.registerDoctorController = exports.sendSmsCodeRegisterController = void 0;
+exports.logoutDoctorController = exports.loginDoctorController = exports.sendSmsCodeLoginController = exports.registerDoctorController = exports.sendSmsCodeRegisterController = void 0;
 const express_validator_1 = require("express-validator");
 const error_handler_1 = __importDefault(require("../../helper/error-handler"));
 const response_handler_1 = __importDefault(require("../../helper/response-handler"));
@@ -65,7 +65,7 @@ const registerDoctorController = (req, res, next) => __awaiter(void 0, void 0, v
                 doctorEmail: doctor.doctorEmail,
             };
             const encodeToken = jsonwebtoken_1.default.sign(doctorInfo, process.env.TOKEN_SECRET_KEY, { expiresIn: '120d' });
-            const responseDoctorInfo = Object.assign({ authToken: encodeToken }, doctorInfo);
+            const responseDoctorInfo = Object.assign(Object.assign({}, doctorInfo), { authToken: encodeToken, pushToken });
             (0, response_handler_1.default)(res, "Welcome in our family", 201, { doctor: responseDoctorInfo });
         }
     }
@@ -117,7 +117,7 @@ const loginDoctorController = (req, res, next) => __awaiter(void 0, void 0, void
             yield doctor.updateOne({ $set: { pushToken } });
             const doctorInfo = Object.assign(Object.assign({}, doctor._doc), { doctorId: doctor._id });
             const encodeToken = jsonwebtoken_1.default.sign(doctorInfo, process.env.TOKEN_SECRET_KEY, { expiresIn: '120d' });
-            const responseDoctorInfo = Object.assign({ authToken: encodeToken }, doctorInfo);
+            const responseDoctorInfo = Object.assign(Object.assign({}, doctorInfo), { authToken: encodeToken, pushToken });
             (0, response_handler_1.default)(res, "Welcome back", 200, { doctor: responseDoctorInfo });
         }
     }
@@ -128,3 +128,15 @@ const loginDoctorController = (req, res, next) => __awaiter(void 0, void 0, void
     }
 });
 exports.loginDoctorController = loginDoctorController;
+const logoutDoctorController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield doctors_1.default.findByIdAndUpdate(req.user.doctorId, { $set: { pushToken: "" } });
+        (0, response_handler_1.default)(res, "Doctor logged out successfully", 200);
+    }
+    catch (err) {
+        if (err.message == `The requested resource /Services/${process.env.SERVICE_SID}/VerificationCheck was not found`) {
+            err.message = "Code is expired";
+        }
+    }
+});
+exports.logoutDoctorController = logoutDoctorController;

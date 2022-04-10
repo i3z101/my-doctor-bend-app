@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const express_validator_1 = require("express-validator");
 const multer_1 = __importDefault(require("multer"));
 const doctor_auth_controller_1 = require("../../controller/doctors/doctor-auth-controller");
+const checkAuthorization_middleware_1 = __importDefault(require("../../middleware/checkAuthorization-middleware"));
 const doctorAuth = express_1.default.Router();
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
@@ -123,4 +124,5 @@ doctorAuth.post('/send-sms-code-login', [
         .isLength({ max: 12 }).withMessage("Doctor phone must be 12 numbers"),
 ], doctor_auth_controller_1.sendSmsCodeLoginController);
 doctorAuth.post('/login', doctor_auth_controller_1.loginDoctorController);
+doctorAuth.patch('/logout', checkAuthorization_middleware_1.default, doctor_auth_controller_1.logoutDoctorController);
 exports.default = doctorAuth;

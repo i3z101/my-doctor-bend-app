@@ -66,7 +66,9 @@ const addNewAppointment = (req, res, next) => __awaiter(void 0, void 0, void 0, 
             if (billInfo) {
                 yield billInfo.updateOne({ $set: { billPath } });
             }
-            pushNewNotification(doctorPushToken, `A new appointment with ${req.user.patientName}`, `Date & Time ${appointmentDate} At ${appointmentTime}`, "Look at it");
+            if (doctorPushToken != "") {
+                pushNewNotification(doctorPushToken, `A new appointment with ${req.user.patientName}`, `Date & Time ${appointmentDate} At ${appointmentTime}`, "Look at it");
+            }
             generatePdfBill(String(appointment._id), "PAID", appointmentDate, appointmentTime, doctorInfo.doctorFullName, doctorInfo.doctorClinic, req.user.patientName);
             (0, response_handler_1.default)(res, "Appointment added successfully", 201, { appointmentId: appointment._id, billPath, acquiredAppointments: doctorInfo.acquiredAppointments });
         }
@@ -110,7 +112,9 @@ const updateAppointment = (req, res, next) => __awaiter(void 0, void 0, void 0, 
                 });
             }
             yield doctorInfo.updateOne({ $set: { acquiredAppointments: doctorInfo.acquiredAppointments } });
-            pushNewNotification(doctorPushToken, `Updated appointment with ${req.user.patientName}`, `New Date & Time ${appointmentDate} At ${appointmentTime}`, "Look at it");
+            if (doctorPushToken != "") {
+                pushNewNotification(doctorPushToken, `Updated appointment with ${req.user.patientName}`, `New Date & Time ${appointmentDate} At ${appointmentTime}`, "Look at it");
+            }
             generatePdfBill(appointmentId, "PAID", appointmentDate, appointmentTime, doctorInfo.doctorFullName, doctorInfo.doctorClinic, req.user.patientName);
             (0, response_handler_1.default)(res, "Appointment updated successfully", 200, { acquiredAppointments: doctorInfo.acquiredAppointments });
         }
@@ -126,7 +130,7 @@ const deleteAppointment = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         const allPromises = yield Promise.all([
             yield doctors_1.default.findById(doctorId),
             yield appointments_1.default.findById(appointmentId),
-            yield bills_1.default.findOneAndUpdate(billId, { $set: { status: "canceled" } })
+            yield bills_1.default.findByIdAndUpdate(billId, { $set: { status: "canceled" } })
         ]);
         const doctorInfo = allPromises[0];
         const appointmentInfo = allPromises[1];
@@ -138,7 +142,9 @@ const deleteAppointment = (req, res, next) => __awaiter(void 0, void 0, void 0, 
                 yield doctorInfo.updateOne({ $set: { acquiredAppointments: doctorInfo.acquiredAppointments } }),
                 yield appointmentInfo.updateOne({ $set: { status: "canceled" } })
             ]);
-            pushNewNotification(doctorPushToken, `Appointment canceled with ${req.user.patientName}`, `Date & Time ${appointmentDate} At ${appointmentTime}`, "Sorry");
+            if (doctorPushToken != "") {
+                pushNewNotification(doctorPushToken, `Appointment canceled with ${req.user.patientName}`, `Date & Time ${appointmentDate} At ${appointmentTime}`, "Sorry");
+            }
             generatePdfBill(appointmentId, "CANCELED", appointmentDate, appointmentTime, doctorInfo.doctorFullName, doctorInfo.doctorClinic, req.user.patientName);
             (0, response_handler_1.default)(res, "Appointment canceled successfully", 200, { acquiredAppointments: doctorInfo.acquiredAppointments });
         }
@@ -212,11 +218,14 @@ const generatePdfBill = (appointmentId, status, appointmentDate, appointmentTime
 };
 const pushNewNotification = (pushToken, title, body, subtitle) => __awaiter(void 0, void 0, void 0, function* () {
     const expo = new expo_server_sdk_1.default();
-    yield expo.sendPushNotificationsAsync([{
-            to: pushToken,
-            title,
-            body,
-            subtitle,
-            sound: 'default',
-        }]);
+    const isPushToken = expo_server_sdk_1.default.isExpoPushToken(pushToken);
+    if (isPushToken) {
+        yield expo.sendPushNotificationsAsync([{
+                to: pushToken,
+                title,
+                body,
+                subtitle,
+                sound: 'default',
+            }]);
+    }
 });
