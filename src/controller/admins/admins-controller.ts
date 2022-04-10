@@ -37,7 +37,10 @@ export const adminLoginHandler = async (req: RequestWithExtraProps, res: Respons
                     adminName: admin.adminName
                 }, process.env.TOKEN_SECRET_KEY as string, {expiresIn: '1d'});
                 
-                res.cookie("authToken", token);
+                res.cookie("authToken", token, {
+                    expires: new Date(new Date().getTime() + 86400000),
+                    maxAge: 86400000
+                });
                 
                 return res.redirect("/admin");
             }

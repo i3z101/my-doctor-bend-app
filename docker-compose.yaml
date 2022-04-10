@@ -5,12 +5,12 @@ services:
     image: i3z101/my-doctor-bend
     container_name: my-doctor-bend
     environment:
-      - ACCOUNT_ID=PUT URS TWILLIO ACCOUNT ID
-      - AUTH_TOKEN=PUT URS TWILLIO AUTH TOKEN
-      - SERVICE_SID=PUT URS TWILLIO SERVICE SID
-      - TOKEN_SECRET_KEY=PUT URS JWT TOKEN SECRET
-      - DB_USERNAME=PUT URS DB USERNAME
-      - DB_PASSWORD=PUT URS DB PASSWORD
+      - ACCOUNT_ID=ACfba587cc565cf516b84e60f8a9844a22
+      - AUTH_TOKEN=8bf0aeb6cc2498df906c70430f57ddc8
+      - SERVICE_SID=VAe513afc39909809c9f08a3b824ebfe24
+      - TOKEN_SECRET_KEY=MYDOCTORSECRETKEYSIGNATURE
+      - DB_USERNAME=aziz-my-doctor
+      - DB_PASSWORD=AZZOZz135797531
     ports:
       - '5000:5000'
     volumes:

@@ -17,7 +17,7 @@ const AppointmentSchema = new Schema<AppointmentType>({
     },
     eventId: {
         type: String,
-        required: true
+        default: ""
     },
     doctor: {
         type: Schema.Types.ObjectId,

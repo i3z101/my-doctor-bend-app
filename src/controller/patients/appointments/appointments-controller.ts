@@ -53,8 +53,9 @@ export const addNewAppointment  = async(req: RequestWithExtraProps, res: Respons
             if(billInfo) {
                 await  billInfo.updateOne({$set: {billPath}})
             }
-
-            pushNewNotification(doctorPushToken, `A new appointment with ${req.user.patientName}`, `Date & Time ${appointmentDate} At ${appointmentTime}`, "Look at it");
+            if(doctorPushToken != "") {
+                pushNewNotification(doctorPushToken, `A new appointment with ${req.user.patientName}`, `Date & Time ${appointmentDate} At ${appointmentTime}`, "Look at it");
+            }
 
             generatePdfBill(String(appointment._id), "PAID", appointmentDate, appointmentTime, doctorInfo.doctorFullName, doctorInfo.doctorClinic, req.user.patientName)
 
@@ -97,8 +98,11 @@ export const updateAppointment  = async(req: RequestWithExtraProps, res: Respons
                 })
             }
             await doctorInfo.updateOne({$set: {acquiredAppointments: doctorInfo.acquiredAppointments}});
+
+            if(doctorPushToken != "") {
+                pushNewNotification(doctorPushToken, `Updated appointment with ${req.user.patientName}`, `New Date & Time ${appointmentDate} At ${appointmentTime}`, "Look at it");
+            }
             
-            pushNewNotification(doctorPushToken, `Updated appointment with ${req.user.patientName}`, `New Date & Time ${appointmentDate} At ${appointmentTime}`, "Look at it");
 
             generatePdfBill(appointmentId, "PAID", appointmentDate, appointmentTime, doctorInfo.doctorFullName, doctorInfo.doctorClinic, req.user.patientName)
 
@@ -115,7 +119,7 @@ export const deleteAppointment  = async(req: RequestWithExtraProps, res: Respons
         const allPromises = await Promise.all([
             await Doctor.findById(doctorId),
             await Appointment.findById(appointmentId),
-            await Bill.findOneAndUpdate(billId, {$set: {status: "canceled"}})
+            await Bill.findByIdAndUpdate(billId, {$set: {status: "canceled"}})
         ])
         const doctorInfo = allPromises[0];
         const appointmentInfo = allPromises[1];
@@ -128,7 +132,9 @@ export const deleteAppointment  = async(req: RequestWithExtraProps, res: Respons
                 await appointmentInfo.updateOne({$set: {status: "canceled"}})
             ])
 
-            pushNewNotification(doctorPushToken, `Appointment canceled with ${req.user.patientName}`, `Date & Time ${appointmentDate} At ${appointmentTime}`, "Sorry");
+            if(doctorPushToken != "") {
+                pushNewNotification(doctorPushToken, `Appointment canceled with ${req.user.patientName}`, `Date & Time ${appointmentDate} At ${appointmentTime}`, "Sorry");
+            }
 
             generatePdfBill(appointmentId, "CANCELED", appointmentDate, appointmentTime, doctorInfo.doctorFullName, doctorInfo.doctorClinic, req.user.patientName)
 
@@ -225,11 +231,14 @@ const generatePdfBill = (appointmentId: string, status:string, appointmentDate: 
 const pushNewNotification = async (pushToken: string, title: string, body:string, subtitle: string) => {
     const expo = new Expo();
             
-    await expo.sendPushNotificationsAsync([{
-        to: pushToken,
-        title,
-        body,
-        subtitle,
-        sound: 'default',
-    }])
+    const isPushToken = Expo.isExpoPushToken(pushToken);
+    if(isPushToken) {
+        await expo.sendPushNotificationsAsync([{
+            to: pushToken,
+            title,
+            body,
+            subtitle,
+            sound: 'default',
+        }])
+    }
 }

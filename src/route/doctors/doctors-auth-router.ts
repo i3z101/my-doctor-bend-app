@@ -1,7 +1,8 @@
 import express, { Request, Response } from 'express';
 import { body, check } from 'express-validator';
 import multer from 'multer';
-import {loginDoctorController, registerDoctorController, sendSmsCodeRegisterController, sendSmsCodeLoginController } from '../../controller/doctors/doctor-auth-controller';
+import {loginDoctorController, registerDoctorController, sendSmsCodeRegisterController, sendSmsCodeLoginController, logoutDoctorController } from '../../controller/doctors/doctor-auth-controller';
+import checkAuthorizationMiddleWare from '../../middleware/checkAuthorization-middleware';
 
 const doctorAuth = express.Router();
 
@@ -119,5 +120,7 @@ doctorAuth.post('/send-sms-code-login', [
 ] , sendSmsCodeLoginController)
 
 doctorAuth.post('/login', loginDoctorController)
+
+doctorAuth.patch('/logout', checkAuthorizationMiddleWare ,logoutDoctorController)
 
 export default doctorAuth;

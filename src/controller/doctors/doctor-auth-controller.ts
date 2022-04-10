@@ -5,7 +5,7 @@ import { Json } from "twilio/lib/interfaces";
 import errorHandler from "../../helper/error-handler";
 import responseHandler from "../../helper/response-handler";
 import { sendSms, verfiySms } from "../../helper/sms-messages-helper";
-import { ResponseType } from "../../helper/types";
+import { RequestWithExtraProps, ResponseType } from "../../helper/types";
 import Doctor  from "../../model/doctors";
 import formidable from 'formidable';
 import path from "path";
@@ -62,8 +62,9 @@ export const registerDoctorController = async (req: Request, res: Response, next
             }
             const encodeToken = jwt.sign(doctorInfo, process.env.TOKEN_SECRET_KEY as string, {expiresIn: '120d'});
             const responseDoctorInfo = {
+                ...doctorInfo,
                 authToken: encodeToken,
-                ...doctorInfo
+                pushToken
             }
             responseHandler(res, "Welcome in our family", 201, {doctor: responseDoctorInfo});
         }
@@ -125,12 +126,24 @@ export const loginDoctorController = async(req: Request, res: Response, next: Ne
             }
             const encodeToken = jwt.sign(doctorInfo, process.env.TOKEN_SECRET_KEY as string, {expiresIn: '120d'});
             const responseDoctorInfo = {
+                ...doctorInfo,
                 authToken: encodeToken,
-                ...doctorInfo
+                pushToken,
             }
             
             responseHandler(res, "Welcome back", 200, {doctor: responseDoctorInfo});
         }
+    }catch(err: any) {
+        if(err.message == `The requested resource /Services/${process.env.SERVICE_SID}/VerificationCheck was not found`){
+            err.message = "Code is expired"
+        }
+    }
+}
+
+export const logoutDoctorController = async(req: RequestWithExtraProps, res: Response, next: NextFunction): Promise<any> => {
+    try {
+        await Doctor.findByIdAndUpdate(req.user.doctorId, {$set: {pushToken: ""}});
+        responseHandler(res, "Doctor logged out successfully", 200);
     }catch(err: any) {
         if(err.message == `The requested resource /Services/${process.env.SERVICE_SID}/VerificationCheck was not found`){
             err.message = "Code is expired"

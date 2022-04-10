@@ -16,6 +16,10 @@ const PatientSchema = new Schema<PatientAuthType>({
         type: String,
         default: null
     },
+    pushToken: {
+        type: String,
+        default: ""
+    },
     isAccountActive: {
         type: Boolean,
         default: true

@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
-import {loginPatientController, registerPatientController, sendSmsCodeLoginController, sendSmsCodeRegisterController} from '../../controller/patients/patients-auth/patients-auth-controllers';
+import {loginPatientController, logoutPatientController, registerPatientController, sendSmsCodeLoginController, sendSmsCodeRegisterController} from '../../controller/patients/patients-auth/patients-auth-controllers';
 import {body} from 'express-validator';
+import checkAuthorizationMiddleWare from '../../middleware/checkAuthorization-middleware';
 
 const patientsAuth = express.Router();
 
@@ -33,5 +34,7 @@ patientsAuth.post("/send-sms-code-login", [
 ] , sendSmsCodeLoginController);
 
 patientsAuth.post("/login", loginPatientController);
+
+patientsAuth.patch("/logout", checkAuthorizationMiddleWare, logoutPatientController);
 
 export default patientsAuth;

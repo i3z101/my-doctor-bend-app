@@ -28,6 +28,7 @@ export const paymentStatusController = async(req: Request, res: Response, next: 
                 amount: appointmentAmount
             }).save()
         }
+        //In front end we send a request every 1 second to check the status of payment in order to close the payment page automatically in the fornt end
         const bill = await Bill.findOne({status: "paid", date: date?.toString().replace(/-/g, " "), time: time?.toString().replace(/-/g, " ")});
         if(bill) {
             responseHandler(res, "Succeed", 200, {billId: bill._id});

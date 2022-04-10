@@ -45,6 +45,7 @@ export type PatientAuthType = {
     patientPhone: string,
     patientName: string,
     patientEmail?: string,
+    pushToken: string,
     isAccountActive: boolean,
     updatePermitted: boolean
 }
