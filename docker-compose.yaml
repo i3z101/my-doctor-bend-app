@@ -5,12 +5,12 @@ services:
     image: i3z101/my-doctor-bend
     container_name: my-doctor-bend
     environment:
-      - ACCOUNT_ID=PUT YOURS
-      - AUTH_TOKEN=PUT YOURS
-      - SERVICE_SID=PUT YOURS
-      - TOKEN_SECRET_KEY=PUT YOURS
-      - DB_USERNAME=PUT YOURS
-      - DB_PASSWORD=PUT YOURS
+      - ACCOUNT_ID=ACfba587cc565cf516b84e60f8a9844a22
+      - AUTH_TOKEN=8bf0aeb6cc2498df906c70430f57ddc8
+      - SERVICE_SID=VAe513afc39909809c9f08a3b824ebfe24
+      - TOKEN_SECRET_KEY=MYDOCTORSECRETKEYSIGNATURE
+      - DB_USERNAME=aziz-my-doctor
+      - DB_PASSWORD=AZZOZz135797531
     ports:
       - '5000:5000'
     volumes:
