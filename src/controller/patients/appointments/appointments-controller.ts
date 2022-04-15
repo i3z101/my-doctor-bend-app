@@ -1,7 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import path from "path";
-import errorHandler from "../../../helper/error-handler";
-import responseHandler from "../../../helper/response-handler";
 import { RequestWithExtraProps } from "../../../helper/types";
 import Appointment from "../../../model/appointments";
 import Bill from "../../../model/bills";
@@ -9,6 +7,7 @@ import Doctor  from "../../../model/doctors"
 import Pdf from 'pdfkit';
 import fs from 'fs';
 import Expo from "expo-server-sdk";
+import HelperClass from "../../../helper/helper-class";
 
 export const addNewAppointment  = async(req: RequestWithExtraProps, res: Response, next: NextFunction): Promise<any> => {
     const {appointmentDate, appointmentTime, eventId, doctorId, billId, roomId, doctorPushToken} = req.body;
@@ -59,7 +58,7 @@ export const addNewAppointment  = async(req: RequestWithExtraProps, res: Respons
 
             generatePdfBill(String(appointment._id), "PAID", appointmentDate, appointmentTime, doctorInfo.doctorFullName, doctorInfo.doctorClinic, req.user.patientName)
 
-            responseHandler(res, "Appointment added successfully", 201, {appointmentId: appointment._id, billPath, acquiredAppointments: doctorInfo.acquiredAppointments});
+            HelperClass.responseHandler(res, "Appointment added successfully", 201, {appointmentId: appointment._id, billPath, acquiredAppointments: doctorInfo.acquiredAppointments});
         }
     }catch(err:any) {
         return next(err);
@@ -106,7 +105,7 @@ export const updateAppointment  = async(req: RequestWithExtraProps, res: Respons
 
             generatePdfBill(appointmentId, "PAID", appointmentDate, appointmentTime, doctorInfo.doctorFullName, doctorInfo.doctorClinic, req.user.patientName)
 
-            responseHandler(res, "Appointment updated successfully", 200, {acquiredAppointments: doctorInfo.acquiredAppointments});
+            HelperClass.responseHandler(res, "Appointment updated successfully", 200, {acquiredAppointments: doctorInfo.acquiredAppointments});
         }
     }catch(err:any) {
         return next(err);
@@ -138,7 +137,7 @@ export const deleteAppointment  = async(req: RequestWithExtraProps, res: Respons
 
             generatePdfBill(appointmentId, "CANCELED", appointmentDate, appointmentTime, doctorInfo.doctorFullName, doctorInfo.doctorClinic, req.user.patientName)
 
-            responseHandler(res, "Appointment canceled successfully", 200, {acquiredAppointments: doctorInfo.acquiredAppointments});
+            HelperClass.responseHandler(res, "Appointment canceled successfully", 200, {acquiredAppointments: doctorInfo.acquiredAppointments});
         }
     }catch(err: any){
         return next(err);

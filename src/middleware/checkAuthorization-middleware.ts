@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import errorHandler from "../helper/error-handler";
 import jwt from 'jsonwebtoken';
+import HelperClass from "../helper/helper-class";
 import { RequestWithExtraProps } from "../helper/types";
 
 const checkAuthorizationMiddleWare = async (req: RequestWithExtraProps, res: Response, next: NextFunction) => {
@@ -8,7 +8,7 @@ const checkAuthorizationMiddleWare = async (req: RequestWithExtraProps, res: Res
         
         const authToken: string|undefined = req.headers.authorization;
         if(!authToken) {
-            errorHandler("You are not authorized", 401);
+           HelperClass.errorHandler("You are not authorized", 401);
             return
         }else{
             const token: string = authToken.split(" ")[1];

@@ -1,8 +1,7 @@
 import Expo from "expo-server-sdk";
 import { NextFunction, Request, Response } from "express";
 import { Server, Socket } from "socket.io";
-import errorHandler from "../../helper/error-handler";
-import responseHandler from "../../helper/response-handler";
+import HelperClass from "../../helper/helper-class";
 import Appointment from "../../model/appointments";
 import Bill from "../../model/bills";
 
@@ -31,9 +30,9 @@ export const paymentStatusController = async(req: Request, res: Response, next: 
         //In front end we send a request every 1 second to check the status of payment in order to close the payment page automatically in the fornt end
         const bill = await Bill.findOne({status: "paid", date: date?.toString().replace(/-/g, " "), time: time?.toString().replace(/-/g, " ")});
         if(bill) {
-            responseHandler(res, "Succeed", 200, {billId: bill._id});
+            HelperClass.responseHandler(res, "Succeed", 200, {billId: bill._id});
         }else {
-            errorHandler("Failed", 500);
+            HelperClass.errorHandler("Failed", 500);
         }
         
     }catch(err: any) {

@@ -2,15 +2,13 @@ import { NextFunction, Request, response, Response } from "express"
 import { validationResult } from "express-validator";
 import multer from "multer";
 import { Json } from "twilio/lib/interfaces";
-import errorHandler from "../../helper/error-handler";
-import responseHandler from "../../helper/response-handler";
-import { sendSms, verfiySms } from "../../helper/sms-messages-helper";
 import { RequestWithExtraProps, ResponseType } from "../../helper/types";
 import Doctor  from "../../model/doctors";
 import formidable from 'formidable';
 import path from "path";
 import fs from "fs/promises";
 import jwt from "jsonwebtoken";
+import HelperClass from "../../helper/helper-class";
 
 
 export const sendSmsCodeRegisterController = async(req: Request, res: Response, next: NextFunction): Promise<any> => {
@@ -19,25 +17,25 @@ export const sendSmsCodeRegisterController = async(req: Request, res: Response, 
     try{
         const validations = validationResult(req);
         if(!validations.isEmpty()) {
-            errorHandler("Validation error(s)", 422, validations.array());
+            HelperClass.errorHandler("Validation error(s)", 422, validations.array());
         }
         const existDoctor = await Doctor.findOne({doctorPhone});
         if(existDoctor) {
-            errorHandler("Doctor is registered already", 422);
+            HelperClass.errorHandler("Doctor is registered already", 422);
         }
-        await sendSms(doctorPhone);
+        await HelperClass.sendSms(doctorPhone);
     }catch(err: any) {
         return next(err);
     }
     
-    responseHandler(res, "Code sent successfully", 200);
+    HelperClass.responseHandler(res, "Code sent successfully", 200);
 
 }
 
 export const registerDoctorController = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     const {doctorFullName, doctorPhone, doctorEmail, doctorClinic, doctorPricePerHour, doctorGraduatedFrom ,code, pushToken} = req.body;
     try {
-        await verfiySms(code, doctorPhone);
+        await HelperClass.verfiySms(code, doctorPhone);
         if(req.files){
             const files = req.files as any;
             
@@ -66,7 +64,7 @@ export const registerDoctorController = async (req: Request, res: Response, next
                 authToken: encodeToken,
                 pushToken
             }
-            responseHandler(res, "Welcome in our family", 201, {doctor: responseDoctorInfo});
+            HelperClass.responseHandler(res, "Welcome in our family", 201, {doctor: responseDoctorInfo});
         }
 
     }catch(err:any) {
@@ -91,32 +89,32 @@ export const sendSmsCodeLoginController = async(req: Request, res: Response, nex
     try {
         const validations = validationResult(req)
         if(!validations.isEmpty()) {
-            errorHandler("Validation error(s)", 422, validations.array());
+            HelperClass.errorHandler("Validation error(s)", 422, validations.array());
         }
         
         const existDoctor = await Doctor.findOne({doctorPhone});
 
         if(!existDoctor) {
-            errorHandler("Doctor is not found", 404);
+            HelperClass.errorHandler("Doctor is not found", 404);
         }else {
             if(!existDoctor.isAccountActive) {
-                errorHandler("Doctor's account is not active. Please contact us", 404);
+                HelperClass.errorHandler("Doctor's account is not active. Please contact us", 404);
             }
         }
 
-        await sendSms(doctorPhone);
+        await HelperClass.sendSms(doctorPhone);
 
     }catch(err: any) {
         return next(err);
     }
 
-    responseHandler(res, "Code send successfully", 200);
+    HelperClass.responseHandler(res, "Code send successfully", 200);
 }
 
 export const loginDoctorController = async(req: Request, res: Response, next: NextFunction): Promise<any> => {
     const {doctorPhone, code, pushToken} = req.body;
     try {
-        await verfiySms(code, doctorPhone);
+        await HelperClass.verfiySms(code, doctorPhone);
         const doctor: any = await Doctor.findOne({doctorPhone});
         if(doctor != null) {
             await doctor.updateOne({$set: {pushToken}});
@@ -131,7 +129,7 @@ export const loginDoctorController = async(req: Request, res: Response, next: Ne
                 pushToken,
             }
             
-            responseHandler(res, "Welcome back", 200, {doctor: responseDoctorInfo});
+            HelperClass.responseHandler(res, "Welcome back", 200, {doctor: responseDoctorInfo});
         }
     }catch(err: any) {
         if(err.message == `The requested resource /Services/${process.env.SERVICE_SID}/VerificationCheck was not found`){
@@ -143,7 +141,7 @@ export const loginDoctorController = async(req: Request, res: Response, next: Ne
 export const logoutDoctorController = async(req: RequestWithExtraProps, res: Response, next: NextFunction): Promise<any> => {
     try {
         await Doctor.findByIdAndUpdate(req.user.doctorId, {$set: {pushToken: ""}});
-        responseHandler(res, "Doctor logged out successfully", 200);
+        HelperClass.responseHandler(res, "Doctor logged out successfully", 200);
     }catch(err: any) {
         if(err.message == `The requested resource /Services/${process.env.SERVICE_SID}/VerificationCheck was not found`){
             err.message = "Code is expired"

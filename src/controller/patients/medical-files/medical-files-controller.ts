@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
-import errorHandler from "../../../helper/error-handler";
-import responseHandler from "../../../helper/response-handler";
+import HelperClass from "../../../helper/helper-class";
 import { RequestWithExtraProps } from "../../../helper/types";
 import MedicalFile from "../../../model/medical-files";
 
@@ -10,7 +9,7 @@ export const addMedicalFile = async (req: RequestWithExtraProps, res: Response, 
     try {
         const validations = validationResult(req);
         if(!validations.isEmpty()) {
-            errorHandler("Validation error(s)", 422, validations.array());
+            HelperClass.errorHandler("Validation error(s)", 422, validations.array());
         }
         await new MedicalFile({
             disease,
@@ -21,7 +20,7 @@ export const addMedicalFile = async (req: RequestWithExtraProps, res: Response, 
             fileName: fileName,
             patient: req.user.patientId
         }).save();
-        responseHandler(res, "Medical file added successfully", 201);
+       HelperClass.responseHandler(res, "Medical file added successfully", 201);
     }catch(err: any) {
         return next(err);
     }
@@ -32,7 +31,7 @@ export const updateMedicalFile = async (req: RequestWithExtraProps, res: Respons
     try {
         const validations = validationResult(req);
         if(!validations.isEmpty()) {
-            errorHandler("Validation error(s)", 422, validations.array());
+            HelperClass.errorHandler("Validation error(s)", 422, validations.array());
         }
         await MedicalFile.findOneAndUpdate({fileName: fileName}, {$set: {
             disease,
@@ -43,7 +42,7 @@ export const updateMedicalFile = async (req: RequestWithExtraProps, res: Respons
             fileName: fileName,
             patient: req.user.patientId
         }})
-        responseHandler(res, "Medical file Updated successfully", 201);
+        HelperClass.responseHandler(res, "Medical file Updated successfully", 201);
     }catch(err: any) {
         return next(err);
     }

@@ -3,10 +3,8 @@ import 'dotenv/config';
 import Patient from "../../../model/patients";
 import {validationResult} from 'express-validator';
 import jwt from 'jsonwebtoken';
-import errorHandler from "../../../helper/error-handler";
-import responseHandler from "../../../helper/response-handler";
-import { sendSms, verfiySms } from "../../../helper/sms-messages-helper";
 import { RequestWithExtraProps } from "../../../helper/types";
+import HelperClass from "../../../helper/helper-class";
 
 
 
@@ -15,14 +13,14 @@ export const sendSmsCodeRegisterController = async (req: Request, res: Response,
     try {
         const validations = validationResult(req);
         if(!validations.isEmpty()) {
-            errorHandler("Validation error(s)", 422, validations.array());
+           HelperClass.errorHandler("Validation error(s)", 422, validations.array());
         }
         const existPatient = await Patient.findOne({patientPhone});
         if(existPatient) {
-            errorHandler("Patient is already registered", 422);
+           HelperClass.errorHandler("Patient is already registered", 422);
         }
-        await sendSms(patientPhone);
-        responseHandler(res, "Code sent successfully", 200);
+        await HelperClass.sendSms(patientPhone);
+        HelperClass.responseHandler(res, "Code sent successfully", 200);
 
     }catch(err:any) {
         return next(err);
@@ -33,7 +31,7 @@ export const sendSmsCodeRegisterController = async (req: Request, res: Response,
 export const registerPatientController = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     const {patientPhone, patientName, patientEmail, code, pushToken} = req.body;
     try {
-        await verfiySms(code, patientPhone);
+        await HelperClass.verfiySms(code, patientPhone);
         const patient: any = await new Patient({
             patientName,
             patientPhone,
@@ -53,7 +51,7 @@ export const registerPatientController = async (req: Request, res: Response, nex
             isGuest: false
         }   
     
-        responseHandler(res, "Patient registered successfully", 201, {patient: responsePatientInfo});
+        HelperClass.responseHandler(res, "Patient registered successfully", 201, {patient: responsePatientInfo});
     }catch(err: any) {
         if(err.message == `The requested resource /Services/${process.env.SERVICE_SID}/VerificationCheck was not found`){
             err.message = "Code is expired"
@@ -70,18 +68,18 @@ export const sendSmsCodeLoginController = async (req: Request, res: Response, ne
     try {
         const validations = validationResult(req);
         if(!validations.isEmpty()) {
-            errorHandler("Validation error(s)", 422, validations.array());
+            HelperClass.errorHandler("Validation error(s)", 422, validations.array());
         }
         const existPatient = await Patient.findOne({patientPhone});
         if(!existPatient) {
-            errorHandler("Patient is not found", 404);
+           HelperClass.errorHandler("Patient is not found", 404);
         }else {
             if(!existPatient.isAccountActive) {
-                errorHandler("Patient's account is not active. Please contact us", 404);
+               HelperClass.errorHandler("Patient's account is not active. Please contact us", 404);
             }
         }
-        await sendSms(patientPhone);
-        responseHandler(res, "Code sent successfully", 200)
+        await HelperClass.sendSms(patientPhone);
+        HelperClass.responseHandler(res, "Code sent successfully", 200)
     }catch(err:any) {
         return next(err);
     }
@@ -91,7 +89,7 @@ export const sendSmsCodeLoginController = async (req: Request, res: Response, ne
 export const loginPatientController = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     const {patientPhone, code, pushToken} = req.body;
     try {
-        await verfiySms(code, patientPhone);
+        await HelperClass.verfiySms(code, patientPhone);
         const patient: any = await Patient.findOne({patientPhone});
         if(patient) {
             await patient.updateOne({$set: {pushToken}});
@@ -108,7 +106,7 @@ export const loginPatientController = async (req: Request, res: Response, next: 
                 isGuest: false
             }   
         
-            responseHandler(res, "Welcome back", 200, {patient:responsePatientInfo});
+            HelperClass.responseHandler(res, "Welcome back", 200, {patient:responsePatientInfo});
         }
         
         
@@ -126,7 +124,7 @@ export const logoutPatientController = async (req: RequestWithExtraProps, res: R
 
     try {
         await Patient.findByIdAndUpdate(req.user.patientId, {$set: {pushToken: ""}});
-        responseHandler(res, "Patient logged out succesfully", 200);
+        HelperClass.responseHandler(res, "Patient logged out succesfully", 200);
         
         
     }catch(err: any) {

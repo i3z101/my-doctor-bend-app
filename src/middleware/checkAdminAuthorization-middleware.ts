@@ -1,5 +1,4 @@
 import { CookieOptions, NextFunction, Request, Response } from "express";
-import errorHandler from "../helper/error-handler";
 import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
 import { RequestWithExtraProps } from "../helper/types";

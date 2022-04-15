@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { Server, Socket } from "socket.io";
-import responseHandler from "../../helper/response-handler";
-import { sendSms } from "../../helper/sms-messages-helper";
+import HelperClass from "../../helper/helper-class";
 import { AppointmentType, RequestWithExtraProps } from "../../helper/types";
 import Appointment from "../../model/appointments";
 import Doctor  from "../../model/doctors";
@@ -11,8 +10,8 @@ import Medicine from "../../model/medicines";
 export const sendSmsCodeAgain = async(req: Request, res: Response, next: NextFunction): Promise<any> => {
     const {phone} = req.body;
     try {
-        await sendSms(phone);
-        responseHandler(res, "Code sent successfully", 200);
+        await HelperClass.sendSms(phone);
+        HelperClass.responseHandler(res, "Code sent successfully", 200);
     }catch(err: any) {
         return next(err);
     }
@@ -42,7 +41,7 @@ export const fetchAllData = async(req: RequestWithExtraProps, res: Response, nex
                         doctorPricePerHour: doc.doctorPricePerHour
                     }
                 })
-                responseHandler(res, "success", 200, {doctors: filteredDoctors});
+               HelperClass.responseHandler(res, "success", 200, {doctors: filteredDoctors});
                 break;
             case "defaultAppointmentsMedicalFilesDoctors":
                 const allPromisesDoctors = await Promise.all([
@@ -79,7 +78,7 @@ export const fetchAllData = async(req: RequestWithExtraProps, res: Response, nex
                         }
                     }
                 })
-                responseHandler(res, "success", 200, {appointments: filteredAppointments, medicalFiles: filteredMedicalFiles});
+                HelperClass.responseHandler(res, "success", 200, {appointments: filteredAppointments, medicalFiles: filteredMedicalFiles});
                 break;
             case "appointments":
                 appointments = await Appointment.find({doctor: req.user.doctorId, status: "approved"}).populate("doctor", ["doctorId", "doctorFullName", "doctorClinic", "acquiredAppointments", "pushToken"]).populate("patient",["patientName", "isAccountActive"]).populate('bill', ["status", "billPath"]),
@@ -102,7 +101,7 @@ export const fetchAllData = async(req: RequestWithExtraProps, res: Response, nex
                         }
                     }
                 })
-                responseHandler(res, "success", 200, {appointments: filteredAppointments});
+                HelperClass.responseHandler(res, "success", 200, {appointments: filteredAppointments});
                 break;
             case "medicalFiles":
                 medicalFiles = await MedicalFile.find({doctor: req.user.doctorId}).populate("doctor", ["doctorId", "doctorFullName"]),
@@ -115,7 +114,7 @@ export const fetchAllData = async(req: RequestWithExtraProps, res: Response, nex
                         }
                     }
                 })
-                responseHandler(res, "success", 200, {medicalFiles: filteredMedicalFiles});
+                HelperClass.responseHandler(res, "success", 200, {medicalFiles: filteredMedicalFiles});
                 break;
             default:
                 const allPromises = await Promise.all([
@@ -174,7 +173,7 @@ export const fetchAllData = async(req: RequestWithExtraProps, res: Response, nex
                     }
                 })
                 
-                responseHandler(res, "success", 200, {appointments: filteredAppointments, doctors: filteredDoctors, medicalFiles: filteredMedicalFiles.reverse(), medicines: filteredMedicines});
+                HelperClass.responseHandler(res, "success", 200, {appointments: filteredAppointments, doctors: filteredDoctors, medicalFiles: filteredMedicalFiles.reverse(), medicines: filteredMedicines});
                 break;
 
         }

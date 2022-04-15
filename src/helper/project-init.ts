@@ -81,7 +81,7 @@ export default class InititeProject {
 
     public createApp = () => {
         this.initiateServer();
-        
+
         mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@mydoctor-cluster.yiuwg.mongodb.net/my-doctor?retryWrites=true&w=majority`).then((m)=> {
         const server = this.app.listen(5000, ()=>{
             console.log("SERVER IS RUNNING");
